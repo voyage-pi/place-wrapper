@@ -1,8 +1,27 @@
 services:
-  template:
+  place-wrapper:
     build: .
-    container_name: ${SERVICE_NAME}
+    container_name: place-wrapper
     environment:
       - ENV_VAR=example
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     volumes:
       - ./app:/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+
+  redis:
+    image: "redis:alpine"
+    container_name: redis_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
+    driver: local

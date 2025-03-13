@@ -1,10 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
+from services.redis_client import redis_client
 
-from app.routes import base_router
+from routes import base_router
 
 app = FastAPI()
-
 
 app.include_router(base_router.router)
 
@@ -20,3 +20,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+async def root():
+    return {"message": "Place Wrapper is Running!"}
+
+@app.post("/cache/{key}")
+async def set_cache(key: str, value: str = Body(..., embed=True)):
+    await redis_client.set(key, value)
+    return {"message": f"Stored {key} -> {value}"}
+
+@app.get("/cache/{key}")
+async def get_cache(key: str):
+    value = await redis_client.get(key)
+    if value:
+        return {"key": key, "value": value}
+    return {"message": "Key not found"}
