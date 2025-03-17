@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
-from app.services.redis_client import redis_client
 
+from app.services.redis_client import redis_client
 from app.routes import base_router
 from app.routes import places_router
 
