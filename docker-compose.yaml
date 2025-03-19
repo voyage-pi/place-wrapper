@@ -11,14 +11,12 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - redis
+      - place_wrapper_cache
 
-  redis:
+  place_wrapper_cache:
     image: "redis:alpine"
-    container_name: redis_cache
+    container_name: places_wrapper_cache
     restart: always
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
 
