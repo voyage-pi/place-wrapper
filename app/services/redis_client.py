@@ -1,7 +1,7 @@
 import redis.asyncio as redis
 import os
 
-REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_HOST = os.getenv("REDIS_HOST", "places_wrapper_cache")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 
 class RedisClient:
