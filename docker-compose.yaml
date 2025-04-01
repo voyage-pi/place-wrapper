@@ -1,14 +1,13 @@
 services:
   place-wrapper:
+    volumes:
+      - .:/app
     build: .
     container_name: place-wrapper
     environment:
       - ENV_VAR=example
       - REDIS_HOST=places_wrapper_cache
       - REDIS_PORT=6379
-    volumes:
-      - .:/app
-      # - .:/app:Z
     depends_on:
       - place_wrapper_cache
 
