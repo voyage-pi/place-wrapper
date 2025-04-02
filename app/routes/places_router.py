@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-from app.services.google_client import fetch_places
-from app.models.request_models import PlacesRequest
-from app.models.response_models import PlacesResponse
+from app.handlers.fetch_places_handler import fetch_places
+from app.models.fetch_places.request_models import PlacesRequest
+from app.models.fetch_places.response_models import PlacesResponse
 
 router = APIRouter(prefix="/places", tags=["places"])
 
