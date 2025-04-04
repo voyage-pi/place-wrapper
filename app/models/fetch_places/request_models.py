@@ -10,6 +10,6 @@ class Location(BaseModel):
 class PlacesRequest(BaseModel):
     type: str = "place"
     location: Location
-    radius: int = 500
+    radius: int = 10000
     includedTypes: Optional[List[str]] = []
     excludedTypes: Optional[List[str]] = []
