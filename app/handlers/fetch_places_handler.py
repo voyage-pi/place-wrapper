@@ -4,7 +4,7 @@ import json
 from app.models.fetch_places.request_models import PlacesRequest
 from app.models.fetch_places.response_models import PlaceResponse, OpeningHours, OpeningPeriod, PlacePhoto, AccessibilityOptions
 from app.config.settings import GOOGLE_MAPS_API_KEY
-from app.services.redis_client import redis_client  # Import Redis client
+from app.services.redis_client import redis_client
 
 BASE_GOOGLE_URL = "https://places.googleapis.com/v1/places:searchNearby"
 
