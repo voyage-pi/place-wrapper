@@ -24,8 +24,7 @@ async def post_places(request: PlacesRequest):
     places: list[PlaceResponse] = await fetch_places(request)
     return PlacesResponse(places=places)
 
-
-@router.get("/photo", response_model=Photo)
+@router.post("/photo", response_model=Photo)
 async def get_photo_endpoint(request: Photo_gRPC):
     """
     Fetch a photo using the POST method with a JSON request body.
