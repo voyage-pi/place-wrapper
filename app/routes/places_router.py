@@ -11,16 +11,19 @@ from app.models.get_photos.response_models import Photo
 from app.handlers.autocomplete_places_handler import autocomplete_places
 from app.models.autocomplete_places.request_models import AutocompleteSearch
 from app.models.autocomplete_places.response_models import Suggestions_List
+from app.models.fetch_places.response_models import PlaceResponse
 
 router = APIRouter(prefix="/places", tags=["places"])
+
 
 @router.post("/", response_model=PlacesResponse)
 async def post_places(request: PlacesRequest):
     """
     Fetch places using the POST method with a JSON request body.
     """
-    places = await fetch_places(request)
+    places: list[PlaceResponse] = await fetch_places(request)
     return PlacesResponse(places=places)
+
 
 @router.get("/photo", response_model=Photo)
 async def get_photo_endpoint(request: Photo_gRPC):
@@ -29,6 +32,7 @@ async def get_photo_endpoint(request: Photo_gRPC):
     """
     photo = await get_photo(request)
     return photo
+
 
 @router.post("/autocomplete", response_model=Suggestions_List)
 async def autocomplete_search(request: AutocompleteSearch):
