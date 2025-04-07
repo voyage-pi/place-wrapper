@@ -36,6 +36,7 @@ class PlaceResponse(BaseModel):
     openingHours: Optional[OpeningHours] = None
     priceRange: Optional[str] = "UNKNOWN"
     rating: Optional[float] = None
+    userRatingCount: Optional[int] = None
     internationalPhoneNumber: Optional[str] = None
     nationalPhoneNumber: Optional[str] = None
     allowsDogs: Optional[bool] = None

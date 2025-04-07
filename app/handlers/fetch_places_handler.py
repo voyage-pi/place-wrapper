@@ -2,13 +2,20 @@ import httpx
 import json
 
 from app.models.fetch_places.request_models import PlacesRequest
-from app.models.fetch_places.response_models import PlaceResponse, OpeningHours, OpeningPeriod, PlacePhoto, AccessibilityOptions
+from app.models.fetch_places.response_models import (
+    PlaceResponse,
+    OpeningHours,
+    OpeningPeriod,
+    PlacePhoto,
+    AccessibilityOptions,
+)
 from app.config.settings import GOOGLE_MAPS_API_KEY
 from app.services.redis_client import redis_client
 
 BASE_GOOGLE_URL = "https://places.googleapis.com/v1/places:searchNearby"
 
-async def fetch_places(request: PlacesRequest):
+
+async def fetch_places(request: PlacesRequest) -> list[PlaceResponse]:
     """
     Fetch places from Google Places API with all required fields.
     Normalizes the response before returning.
@@ -42,15 +49,17 @@ async def fetch_places(request: PlacesRequest):
             "places.currentOpeningHours,places.nationalPhoneNumber,"
             "places.internationalPhoneNumber,places.photos,"
             "places.accessibilityOptions,places.regularOpeningHours,"
-            "places.allowsDogs,places.goodForChildren,places.goodForGroups"
+            "places.allowsDogs,places.goodForChildren,places.goodForGroups,"
+            "places.userRatingCount"
         ),
     }
 
     # Prepare request payload
     payload = {
         "includedTypes": included_types,
-        "excludedTypes": excluded_types,
-        "maxResultCount": 10,
+        # "excludedTypes": excluded_types,
+        "excludedPrimaryTypes": excluded_types,
+        "maxResultCount": 20,
         "locationRestriction": {
             "circle": {
                 "center": {"latitude": latitude, "longitude": longitude},
@@ -74,10 +83,13 @@ async def fetch_places(request: PlacesRequest):
     normalized_data = normalize_google_response(data["places"])
 
     # Cache the normalized response in Redis for 1 hour
-    await redis_client.set(cache_key, json.dumps([place.model_dump() for place in normalized_data]), expire=3600)
+    await redis_client.set(
+        cache_key,
+        json.dumps([place.model_dump() for place in normalized_data]),
+        expire=3600,
+    )
 
     return [place.model_dump() for place in normalized_data]
-
 
 
 def normalize_google_response(places):
@@ -89,7 +101,7 @@ def normalize_google_response(places):
 
     for place in places:
         opening_hours = []
-        
+
         if "currentOpeningHours" in place and "periods" in place["currentOpeningHours"]:
             for period in place["currentOpeningHours"]["periods"]:
                 opening_hours.append(
@@ -103,7 +115,7 @@ def normalize_google_response(places):
                             "day": period["close"]["day"],
                             "hour": period["close"]["hour"],
                             "minute": period["close"]["minute"],
-                        }
+                        },
                     )
                 )
 
@@ -113,25 +125,33 @@ def normalize_google_response(places):
             **place.get("accessibilityOptions", {})
         )
 
-        normalized.append(PlaceResponse(
-            ID=place.get("id"),
-            name=place.get("displayName", {}).get("text"),
-            location={"latitude": place["location"]["latitude"], "longitude": place["location"]["longitude"]},
-            types=place.get("types", []),
-            photos=photos,
-            accessibilityOptions=accessibility_options,
-            OpeningHours=OpeningHours(
-                openNow=place.get("currentOpeningHours", {}).get("openNow"),
-                periods=opening_hours
-            ),
-            priceRange=place.get("priceLevel", "UNKNOWN"),
-            rating=place.get("rating"),
-            internationalPhoneNumber=place.get("internationalPhoneNumber"),
-            nationalPhoneNumber=place.get("nationalPhoneNumber"),
-            allowsDogs=place.get("allowsDogs", False),
-            goodForChildren=place.get("goodForChildren", False),
-            goodForGroups=place.get("goodForGroups", False)
-        ))
+        print("User Rating Count")
+        print(place.get("userRatingCount"))
+
+        normalized.append(
+            PlaceResponse(
+                ID=place.get("id"),
+                name=place.get("displayName", {}).get("text"),
+                location={
+                    "latitude": place["location"]["latitude"],
+                    "longitude": place["location"]["longitude"],
+                },
+                types=place.get("types", []),
+                photos=photos,
+                accessibilityOptions=accessibility_options,
+                OpeningHours=OpeningHours(
+                    openNow=place.get("currentOpeningHours", {}).get("openNow"),
+                    periods=opening_hours,
+                ),
+                priceRange=place.get("priceLevel", "UNKNOWN"),
+                rating=place.get("rating"),
+                userRatingCount=place.get("userRatingCount"),
+                internationalPhoneNumber=place.get("internationalPhoneNumber"),
+                nationalPhoneNumber=place.get("nationalPhoneNumber"),
+                allowsDogs=place.get("allowsDogs", False),
+                goodForChildren=place.get("goodForChildren", False),
+                goodForGroups=place.get("goodForGroups", False),
+            )
+        )
 
     return normalized
-
