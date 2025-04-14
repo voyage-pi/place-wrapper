@@ -11,5 +11,6 @@ class PlacesRequest(BaseModel):
     type: str = "place"
     location: Location
     radius: int = 10000
+    page: Optional[str] = ""
     includedTypes: Optional[List[str]] = []
     excludedTypes: Optional[List[str]] = []

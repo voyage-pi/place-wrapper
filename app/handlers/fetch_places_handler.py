@@ -15,7 +15,9 @@ from app.services.redis_client import redis_client
 BASE_GOOGLE_URL = "https://places.googleapis.com/v1/places:searchNearby"
 
 
-async def fetch_places(request: PlacesRequest) -> list[PlaceResponse]:
+async def fetch_places(
+    request: PlacesRequest,
+) -> list[PlaceResponse] | tuple[list[PlaceResponse], str]:
     """
     Fetch places from Google Places API with all required fields.
     Normalizes the response before returning.
@@ -54,12 +56,9 @@ async def fetch_places(request: PlacesRequest) -> list[PlaceResponse]:
         ),
     }
 
-    # Prepare request payload
     payload = {
         "includedTypes": included_types,
-        # "excludedTypes": excluded_types,
         "excludedPrimaryTypes": excluded_types,
-        "maxResultCount": 20,
         "locationRestriction": {
             "circle": {
                 "center": {"latitude": latitude, "longitude": longitude},
@@ -72,8 +71,6 @@ async def fetch_places(request: PlacesRequest) -> list[PlaceResponse]:
     async with httpx.AsyncClient() as client:
         response = await client.post(BASE_GOOGLE_URL, json=payload, headers=headers)
         data = response.json()
-
-    print("GOOGLE API RAW RESPONSE:", json.dumps(data, indent=2))
 
     # Validate API response
     if "places" not in data:
@@ -89,6 +86,9 @@ async def fetch_places(request: PlacesRequest) -> list[PlaceResponse]:
         expire=3600,
     )
 
+    next_page_token = data.get("next_page_token", None)
+    if next_page_token:
+        return [place.model_dump() for place in normalized_data], next_page_token
     return [place.model_dump() for place in normalized_data]
 
 
