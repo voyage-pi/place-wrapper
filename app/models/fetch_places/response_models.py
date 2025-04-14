@@ -46,3 +46,4 @@ class PlaceResponse(BaseModel):
 
 class PlacesResponse(BaseModel):
     places: List[PlaceResponse]
+    nextPageToken: Optional[str] = None
