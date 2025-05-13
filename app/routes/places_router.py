@@ -13,6 +13,9 @@ from app.models.autocomplete_places.request_models import AutocompleteSearch
 from app.models.autocomplete_places.response_models import Suggestions_List
 from app.models.fetch_places.response_models import PlaceResponse
 
+from app.handlers.get_places_handler import get_place_info
+from app.models.get_place.response_model import GetPlaceResponse
+
 router = APIRouter(prefix="/places", tags=["places"])
 
 
@@ -40,3 +43,11 @@ async def autocomplete_search(request: AutocompleteSearch):
     """
     suggestions = await autocomplete_places(request)
     return Suggestions_List(suggestions_list=suggestions)
+
+@router.get("/{place_id}", response_model=GetPlaceResponse)
+async def get_place(place_id: str):
+    """
+    Get a place using the GET method.
+    """
+    place = await get_place_info(place_id)
+    return place
