@@ -8,6 +8,7 @@ from app.services.redis_client import redis_client
 
 BASE_GOOGLE_URL = "https://places.googleapis.com/v1/places:autocomplete"
 
+
 async def autocomplete_places(request: AutocompleteSearch):
     """
     Autocomplete places from Google Places API.
@@ -40,8 +41,6 @@ async def autocomplete_places(request: AutocompleteSearch):
         response = await client.post(BASE_GOOGLE_URL, json=payload, headers=headers)
         data = response.json()
 
-    print("GOOGLE API RAW RESPONSE:", data)
-
     # Initialize the suggestions list
     suggestions = []
 
@@ -54,10 +53,14 @@ async def autocomplete_places(request: AutocompleteSearch):
         suggestion = Suggestion(
             place_id=place_prediction.get("placeId"),
             text=place_prediction.get("text", {}).get("text", ""),
-            main_text=place_prediction.get("structuredFormat", {}).get("mainText", {}).get("text", ""),
-            secondary_text=place_prediction.get("structuredFormat", {}).get("secondaryText", {}).get("text", ""),
-        ) 
-        
+            main_text=place_prediction.get("structuredFormat", {})
+            .get("mainText", {})
+            .get("text", ""),
+            secondary_text=place_prediction.get("structuredFormat", {})
+            .get("secondaryText", {})
+            .get("text", ""),
+        )
+
         # Append the suggestion to the list
         suggestions.append(suggestion)
 
