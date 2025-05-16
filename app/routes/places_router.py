@@ -16,6 +16,10 @@ from app.models.fetch_places.response_models import PlaceResponse
 from app.handlers.get_places_handler import get_place_info
 from app.models.get_place.response_model import GetPlaceResponse
 
+from app.handlers.text_search_handler import text_search
+from app.models.text_search.request_models import TextSearchRequest
+from app.models.text_search.response_models import TextSearchResponse
+
 router = APIRouter(prefix="/places", tags=["places"])
 
 
@@ -51,3 +55,11 @@ async def get_place(place_id: str):
     """
     place = await get_place_info(place_id)
     return place
+
+@router.post("/text-search", response_model=TextSearchResponse)
+async def text_search_endpoint(request: TextSearchRequest):
+    """
+    Search places using text query.
+    """
+    places = await text_search(request)
+    return TextSearchResponse(places=places)
