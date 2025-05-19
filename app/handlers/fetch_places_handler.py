@@ -1,6 +1,6 @@
 import httpx
 import json
-
+from app.models.get_place.response_model import PriceRange
 from app.models.fetch_places.request_models import PlacesRequest
 from app.models.fetch_places.response_models import (
     PlaceResponse,
@@ -49,7 +49,7 @@ async def fetch_places(
             "places.id,places.displayName,places.location,places.rating,"
             "places.types,places.formattedAddress,places.priceLevel,"
             "places.currentOpeningHours,places.nationalPhoneNumber,"
-            "places.internationalPhoneNumber,places.photos,"
+            "places.internationalPhoneNumber,places.priceRange,places.photos,"
             "places.accessibilityOptions,places.regularOpeningHours,"
             "places.allowsDogs,places.goodForChildren,places.goodForGroups,"
             "places.userRatingCount"
@@ -125,8 +125,15 @@ def normalize_google_response(places):
             **place.get("accessibilityOptions", {})
         )
 
-        print("User Rating Count")
-        print(place.get("userRatingCount"))
+        # pricing range
+        google_range=place.get("priceRange",None)
+        if google_range is not None:
+            print(google_range)
+            start_price=int(google_range.get("startPrice").get("units"))
+            # when a place is $100+ i just set the end_price to 500$ for limitations and type structure purposes
+            end_price=int(google_range.get("endPrice",{"units":500}).get("units"))
+            currency=str(google_range.get("startPrice").get("currencyCode"))
+            google_range=PriceRange(currency=currency,start_price=start_price,end_price=end_price).model_dump()
 
         normalized.append(
             PlaceResponse(
@@ -143,7 +150,8 @@ def normalize_google_response(places):
                     openNow=place.get("currentOpeningHours", {}).get("openNow"),
                     periods=opening_hours,
                 ),
-                priceRange=place.get("priceLevel", "UNKNOWN"),
+                priceLevel=place.get("priceLevel"),
+                priceRange=google_range,
                 rating=place.get("rating"),
                 userRatingCount=place.get("userRatingCount"),
                 internationalPhoneNumber=place.get("internationalPhoneNumber"),
@@ -153,5 +161,5 @@ def normalize_google_response(places):
                 goodForGroups=place.get("goodForGroups", False),
             )
         )
-
+        print(normalized)
     return normalized

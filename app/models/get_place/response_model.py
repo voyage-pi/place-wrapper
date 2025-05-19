@@ -25,6 +25,12 @@ class Location(BaseModel):
     latitude: float
     longitude: float
 
+class PriceRange(BaseModel):
+    start_price:int
+    end_price:int
+    currency:str
+
+
 class GetPlaceResponse(BaseModel):
     place_id: str
     name: Optional[str] = None
@@ -36,4 +42,6 @@ class GetPlaceResponse(BaseModel):
     photos: Optional[List[PlacePhoto]] = []
     rating: Optional[float] = None
     reviews: Optional[List[Review]] = None
+    priceRange:Optional[PriceRange] = None
+    priceLevel:Optional[str]=None
     opening_hours: Optional[OpeningHours] = None

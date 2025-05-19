@@ -29,6 +29,7 @@ async def post_places(request: PlacesRequest):
     Fetch places using the POST method with a JSON request body.
     """
     places: list[PlaceResponse] = await fetch_places(request)
+    print(places)
     return PlacesResponse(places=places)
 
 @router.post("/photo", response_model=Photo)
