@@ -143,7 +143,18 @@ def normalize_google_response(places):
                     openNow=place.get("currentOpeningHours", {}).get("openNow"),
                     periods=opening_hours,
                 ),
-                priceRange=place.get("priceLevel", "UNKNOWN"),
+                priceRange={
+                    "start_price": 0.0,
+                    "end_price": 0.0,
+                    "currency": "EUR"
+                } if place.get("priceLevel") == "UNKNOWN" else {
+                    "start_price": 0.0 if place.get("priceLevel") == "FREE" else 1.0,
+                    "end_price": 0.0 if place.get("priceLevel") == "FREE" else 
+                                  15.0 if place.get("priceLevel") == "INEXPENSIVE" else
+                                  40.0 if place.get("priceLevel") == "MODERATE" else
+                                  100.0 if place.get("priceLevel") == "EXPENSIVE" else 200.0,
+                    "currency": "EUR"
+                },
                 rating=place.get("rating"),
                 userRatingCount=place.get("userRatingCount"),
                 internationalPhoneNumber=place.get("internationalPhoneNumber"),

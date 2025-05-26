@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 
 class PlacePhoto(BaseModel):
@@ -34,7 +34,7 @@ class PlaceResponse(BaseModel):
     photos: List[PlacePhoto] = []
     accessibilityOptions: Optional[AccessibilityOptions] = None
     openingHours: Optional[OpeningHours] = None
-    priceRange: Optional[str] = "UNKNOWN"
+    priceRange: Optional[Dict[str, Any]] = None
     rating: Optional[float] = None
     userRatingCount: Optional[int] = None
     internationalPhoneNumber: Optional[str] = None

@@ -36,8 +36,6 @@ async def get_place_info(place_id: str) -> GetPlaceResponse:
         response.raise_for_status()
         data = response.json()
 
-    print("GOOGLE RESPONSE", data)
-
     normalized_data = normalize_place_response(data)
 
     await redis_client.set(cache_key, json.dumps(normalized_data), expire=3600)
@@ -111,7 +109,7 @@ def normalize_place_response(data):
     return {
         "place_id": place.get("id"),
         "name": place.get("displayName", {}).get("text"),
-        "description": place.get("editorialSummary", {}).get("overview"),
+        "description": place.get("editorialSummary", {}).get("text"),
         "address": place.get("formattedAddress"),
         "phone_number": place.get("nationalPhoneNumber") or place.get("internationalPhoneNumber"),
         "location": location,
