@@ -1,7 +1,7 @@
 import httpx
 import json
 
-from app.models.get_place.response_model import GetPlaceResponse
+from app.models.get_place.response_model import GetPlaceResponse, PriceRange
 from app.models.get_place.response_model import OpeningPeriod
 from app.config.settings import GOOGLE_MAPS_API_KEY
 from app.services.redis_client import redis_client
@@ -21,8 +21,8 @@ async def get_place_info(place_id: str) -> GetPlaceResponse:
     
     fields = (
         "id,displayName,location,rating,types,formattedAddress,priceLevel,"
-        "currentOpeningHours,nationalPhoneNumber,internationalPhoneNumber,photos,"
-        "accessibilityOptions,regularOpeningHours,allowsDogs,goodForChildren,"
+        "currentOpeningHours,priceRange,nationalPhoneNumber,internationalPhoneNumber,photos,"
+        "accessibilityOptions,regularOpeningHours,goodForChildren,"
         "goodForGroups,userRatingCount,editorialSummary,reviews"
     )
     url = f"{BASE_GOOGLE_URL}/{place_id}"
@@ -105,7 +105,14 @@ def normalize_place_response(data):
             "openNow": hours.get("openNow"),
             "periods": periods
         }
-
+    # pricing range
+    google_range=place.get("priceRange",None)
+    if google_range is not None:
+        print(google_range)
+        start_price=int(google_range.get("startPrice").get("units"))
+        end_price=int(google_range.get("endPrice").get("units"))
+        currency=str(google_range.get("startPrice").get("currencyCode"))
+        google_range=PriceRange(currency=currency,start_price=start_price,end_price=end_price).model_dump()
     return {
         "place_id": place.get("id"),
         "name": place.get("displayName", {}).get("text"),
@@ -117,6 +124,8 @@ def normalize_place_response(data):
         "photos": photos,
         "rating": place.get("rating"),
         "reviews": reviews,
+        "priceRange":google_range,
+        "priceLevel":place.get("priceLevel"),
         "opening_hours": opening_hours
     }
     

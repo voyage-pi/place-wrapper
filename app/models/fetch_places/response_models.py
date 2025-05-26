@@ -1,3 +1,4 @@
+from app.models.get_place.response_model import PriceRange
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 
@@ -35,6 +36,7 @@ class PlaceResponse(BaseModel):
     accessibilityOptions: Optional[AccessibilityOptions] = None
     openingHours: Optional[OpeningHours] = None
     priceRange: Optional[Dict[str, Any]] = None
+    priceLevel: Optional[str] = None
     rating: Optional[float] = None
     userRatingCount: Optional[int] = None
     internationalPhoneNumber: Optional[str] = None
