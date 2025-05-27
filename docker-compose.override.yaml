@@ -2,3 +2,7 @@ services:
   place-wrapper:
     ports:
       - "8080:8080"
+  place_wrapper_cache:
+    ports:
+      - "6379:6379"
+

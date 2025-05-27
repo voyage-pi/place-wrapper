@@ -1,14 +1,16 @@
 from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
-from app.services.redis_client import redis_client
 
+from app.services.redis_client import redis_client
 from app.routes import base_router
 from app.routes import places_router
+from app.routes import search_router
 
 app = FastAPI()
 
 app.include_router(base_router.router)
 app.include_router(places_router.router)
+app.include_router(search_router.router)
 
 origins = [
     "http://localhost:8080",
