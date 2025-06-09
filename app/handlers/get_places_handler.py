@@ -117,6 +117,7 @@ def normalize_place_response(data):
         google_range=PriceRange(currency=currency,start_price=start_price,end_price=end_price).model_dump()
     return {
         "place_id": place.get("id"),
+        "id": place.get("id"),
         "name": place.get("displayName", {}).get("text"),
         "description": place.get("editorialSummary", {}).get("overview"),
         "address": place.get("formattedAddress"),
